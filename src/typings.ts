@@ -22,7 +22,5 @@ export interface INode extends SimulationNodeDatum {
 
 /** 边 */
 export interface ILink extends SimulationLinkDatum<INode> {
-  source: string;
-  target: string;
   [key: string]: any;
 }

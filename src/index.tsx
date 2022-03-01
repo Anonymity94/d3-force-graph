@@ -13,7 +13,6 @@ let link: any;
 let nodeLabel: any;
 let container: d3.Selection<any, unknown, any, any>;
 let svg: d3.Selection<any, unknown, any, any>;
-let zoom: any;
 
 const maxLog = Math.ceil(Math.pow(Math.E, 9));
 
@@ -45,8 +44,8 @@ function drag(simulation: Simulation<INode, undefined>) {
       simulation.alphaTarget(0).stop();
     }
     draggingNode = undefined;
-    d.fx = null;
-    d.fy = null;
+    d.fx = event.x;
+    d.fy = event.y;
     nodeFocus(d);
   }
 
@@ -88,19 +87,21 @@ function nodeFocus(d: INode) {
 function linkFocus(l: ILink) {
   const sourceNode = l.source as unknown as INode;
   const targetNode = l.target as unknown as INode;
-  // TODO: 高连边和节点
   if (!draggingNode) {
     node.style("opacity", (o: INode) => {
+      // 把边连接的 2 个节点高亮
       return o.index === sourceNode.index || o.index === targetNode.index
         ? 1
         : 0.1;
     });
     nodeLabel.attr("display", (o: INode) => {
+      // 把边连接的 2 个节点的标签高亮
       return o.index === sourceNode.index || o.index === targetNode.index
         ? "block"
         : "none";
     });
     link.style("opacity", (o: INode) => {
+      // 把这条边高亮
       return o.source.index === sourceNode.index &&
         o.target.index === targetNode.index
         ? 1
@@ -223,6 +224,65 @@ const ForceGraph = ({
     return 2 * val;
   };
 
+  const inderInfo = (d: ILink) => {
+    svg
+      .append("foreignObject")
+      .attr("id", "label")
+      .attr("pointer-events", "none")
+      .style("user-select", "none")
+      .attr("x", 15)
+      .attr("y", 15)
+      .attr("width", 300)
+      .attr("height", 250)
+      .selectAll(".legend-table")
+      .data(["legend-table"])
+      .join("xhtml:table")
+      .classed("legend-table", true)
+      .html(() => {
+        const returnHtml = `  
+        <style>
+          table {
+            width: auto;
+            height: auto;
+            padding: 8px;
+            background: #ddd;
+            pointer-events: none;
+            border-radius: 10px;
+          }
+        
+          th, td {
+            padding: 6px;
+            text-align:right;
+          }
+        </style>
+      
+        <table>
+          <tr>
+            <th>IP_A: <th>
+            <td>${(d.source as INode).id}</td>
+          </tr>
+          <tr>
+            <th>IP_B: <th>
+            <td>${(d.target as INode).id}</td>
+          </tr>
+          <tr>
+            <th>总流量: <th>
+            <td>${d.totalBytes}</td>
+          </tr>
+          <tr>
+            <th>会话数: <th>
+            <td>${d.establishedSessions}</td>
+          </tr>
+        </table>
+        `;
+        return returnHtml;
+      });
+  };
+
+  const removeInfo = () => {
+    svg.selectAll("foreignObject").remove();
+  };
+
   /**
    * 画图
    */
@@ -254,20 +314,21 @@ const ForceGraph = ({
     // setup the force directed graph
     simulation = d3
       .forceSimulation(nodesData)
+      //link froce(弹簧模型) 可以根据 link distance 将有关联的两个节点拉近或者推远。力的强度与被链接两个节点的距离成比例，类似弹簧力
       .force(
         "link",
         d3.forceLink(links).id((d) => {
           return (d as INode).id; // tell the links where to link
         })
       )
-      // simulate gravity mutually amongst all nodes
-      .force("charge", d3.forceManyBody().strength(-40 * 2))
-      // prevent elements from overlapping
+      //作用力应用在所用的节点之间，当strength为正的时候可以模拟重力，当为负的时候可以模拟电荷力
+      .force("charge", d3.forceManyBody().strength(-100).distanceMin(80))
+      //设置节点碰撞半径>= 点半径避免重叠
       .force(
         "collision",
         d3.forceCollide().radius((n) => calculateCollisionRadius(n as INode))
       )
-      // set the graph center
+      //centering 作用力可以使得节点布局开之后围绕某个中心
       .force("center", d3.forceCenter(width / 2, height / 2))
       // positioning force along x-axis for disjoint graph
       .force("x", d3.forceX())
@@ -302,6 +363,7 @@ const ForceGraph = ({
     // add links
     link = container
       .append("g")
+      .attr("class", "link-wrap")
       .attr("stroke", foregroundColor)
       .attr("stroke-opacity", 0.4)
       .selectAll("line")
@@ -309,7 +371,58 @@ const ForceGraph = ({
       .enter()
       .append("line")
       .attr("class", "link")
+      .attr("id", function (d, i) {
+        return "link-path-" + i;
+      })
       .attr("stroke-width", calculateLinkWeight);
+
+    // const edgepaths = container
+    //   .append("g")
+    //   .attr("class", "link-path-wrap")
+    //   .selectAll(".edgepath")
+    //   .data(linksData)
+    //   .enter()
+    //   .append("path")
+    //   .attr(
+    //     "d",
+    //     (d) =>
+    //       "M " +
+    //       d.source.x +
+    //       " " +
+    //       d.source.y +
+    //       " L " +
+    //       d.target.x +
+    //       " " +
+    //       d.target.y
+    //   )
+    //   .attr("class", "edgepath")
+    //   .attr("id", (d, i) => `edgepath${i}`)
+    //   .style("pointer-events", "none");
+
+    // const edgelabels = container
+    //   .append("g")
+    //   .attr("class", "link-label-wrap")
+    //   .selectAll(".edgelabel")
+    //   .data(linksData)
+    //   .enter()
+    //   .append("text")
+    //   .style("pointer-events", "none")
+    //   .attr("class", "edgelabel")
+    //   .attr("id", (d, i) => "edgelabel" + i)
+    //   .attr("dy", (d, i) => calculateLinkWeight(d) + 0)
+    //   .attr("dx", 80)
+    //   .attr("font-size", 10)
+    //   .attr("fill", "red");
+
+    // edgelabels
+    //   .append("textPath")
+    //   .attr("xlink:href", function (d, i) {
+    //     return "#edgepath" + i;
+    //   })
+    //   .style("pointer-events", "none")
+    //   .text(function (d, i) {
+    //     return "label " + i;
+    //   });
 
     // add link mouse listeners
     link
@@ -319,6 +432,7 @@ const ForceGraph = ({
         }
         // 高亮这条边和 2 个节点
         linkFocus(l);
+        inderInfo(l);
         console.log(e);
         console.log(l);
         console.log(node);
@@ -326,11 +440,13 @@ const ForceGraph = ({
       })
       .on("mouseout", () => {
         unfocus();
+        removeInfo();
       });
 
     // add nodes
     node = container
       .append("g")
+      .attr("class", "node-wrap")
       .selectAll("circle")
       .data(nodesData)
       .enter()
@@ -340,8 +456,6 @@ const ForceGraph = ({
         return "id" + d.id.replace(idRegex, "_");
       })
       .attr("fill", (d) => {
-        // TODO: 聚合填充颜色
-        // 现在先指定颜色
         return "#66b689";
       })
       .attr("r", calculateNodeWeight)
@@ -353,19 +467,27 @@ const ForceGraph = ({
     // add node mouse listeners for showing focus and popups
     node
       .on("mouseover", (e: any, d: INode) => {
-        console.log(d);
         if (draggingNode) {
           return;
         }
+        console.log(d);
         nodeFocus(d);
       })
       .on("mouseout", (d: INode) => {
         unfocus();
+      })
+      .on("click", (d: INode) => {
+        if (draggingNode) {
+          return;
+        }
+        nodeFocus(d);
+        console.log(d);
       });
 
     // add node labels
     nodeLabel = container
       .append("g")
+      .attr("class", "node-label-wrap")
       .selectAll("text")
       .data(nodesData)
       .enter()
@@ -393,13 +515,28 @@ const ForceGraph = ({
         .attr("x2", (d: SimulationLinkDatum<INode>) => (d.target as INode).x)
         .attr("y2", (d: SimulationLinkDatum<INode>) => (d.target as INode).y);
 
+      // edgepaths.attr("d", function (d) {
+      //   var path =
+      //     "M " +
+      //     d.source.x +
+      //     " " +
+      //     d.source.y +
+      //     " L " +
+      //     d.target.x +
+      //     " " +
+      //     d.target.y;
+      //   //console.log(d)
+      //   return path;
+      // });
+
       // position nodes
       node.attr("cx", (d: INode) => d.x).attr("cy", (d: INode) => d.y);
 
       // position node labels
-      nodeLabel.attr("transform", function (d: INode) {
-        return "translate(" + d.x + "," + d.y + ")";
-      });
+      nodeLabel.attr(
+        "transform",
+        (d: INode) => "translate(" + d.x + "," + d.y + ")"
+      );
     });
   }, []);
 
