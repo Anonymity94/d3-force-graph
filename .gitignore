@@ -1,0 +1,4 @@
+node_modules
+test/*.json
+dist
+.cache

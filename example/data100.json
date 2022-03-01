@@ -1,0 +1,602 @@
+[
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "157.119.175.224",
+    "establishedSessions": 42,
+    "totalBytes": 332302649
+  },
+  {
+    "ipBAddress": "10.1.0.103",
+    "ipAAddress": "10.0.0.110",
+    "establishedSessions": 24,
+    "totalBytes": 192777422
+  },
+  {
+    "ipBAddress": "192.168.15.169",
+    "ipAAddress": "109.244.170.61",
+    "establishedSessions": 4,
+    "totalBytes": 136572164
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "103.151.149.74",
+    "establishedSessions": 8,
+    "totalBytes": 131951821
+  },
+  {
+    "ipBAddress": "109.244.255.176",
+    "ipAAddress": "10.0.0.25",
+    "establishedSessions": 92,
+    "totalBytes": 125548484
+  },
+  {
+    "ipBAddress": "118.195.232.191",
+    "ipAAddress": "10.0.0.82",
+    "establishedSessions": 76,
+    "totalBytes": 122364690
+  },
+  {
+    "ipBAddress": "166.111.9.181",
+    "ipAAddress": "10.0.0.86",
+    "establishedSessions": 2,
+    "totalBytes": 85043659
+  },
+  {
+    "ipBAddress": "109.244.244.240",
+    "ipAAddress": "10.0.0.10",
+    "establishedSessions": 0,
+    "totalBytes": 72100776
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "150.139.240.240",
+    "establishedSessions": 4,
+    "totalBytes": 50410148
+  },
+  {
+    "ipBAddress": "10.1.0.102",
+    "ipAAddress": "10.0.0.110",
+    "establishedSessions": 309,
+    "totalBytes": 49699920
+  },
+  {
+    "ipBAddress": "103.151.149.50",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 55,
+    "totalBytes": 43341700
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "182.254.61.223",
+    "establishedSessions": 6,
+    "totalBytes": 36119665
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "157.119.174.100",
+    "establishedSessions": 4,
+    "totalBytes": 32674663
+  },
+  {
+    "ipBAddress": "145.40.73.55",
+    "ipAAddress": "10.0.0.101",
+    "establishedSessions": 2,
+    "totalBytes": 31638666
+  },
+  {
+    "ipBAddress": "157.119.175.225",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 84,
+    "totalBytes": 31462844
+  },
+  {
+    "ipBAddress": "203.187.160.131",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 1,
+    "totalBytes": 23979535
+  },
+  {
+    "ipBAddress": "239.255.255.250",
+    "ipAAddress": "192.168.15.152",
+    "establishedSessions": 0,
+    "totalBytes": 23762340
+  },
+  {
+    "ipBAddress": "10.1.0.107",
+    "ipAAddress": "10.0.0.121",
+    "establishedSessions": 129,
+    "totalBytes": 20890896
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "106.38.177.1",
+    "establishedSessions": 44,
+    "totalBytes": 19469177
+  },
+  {
+    "ipBAddress": "192.168.15.216",
+    "ipAAddress": "43.137.152.197",
+    "establishedSessions": 20,
+    "totalBytes": 19271203
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "1.182.112.208",
+    "establishedSessions": 0,
+    "totalBytes": 19202400
+  },
+  {
+    "ipBAddress": "192.168.15.245",
+    "ipAAddress": "192.168.14.104",
+    "establishedSessions": 94,
+    "totalBytes": 18744815
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "1.182.113.138",
+    "establishedSessions": 4,
+    "totalBytes": 18375328
+  },
+  {
+    "ipBAddress": "10.1.0.107",
+    "ipAAddress": "10.0.0.246",
+    "establishedSessions": 188,
+    "totalBytes": 17892361
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.162.187.200",
+    "establishedSessions": 0,
+    "totalBytes": 16101592
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.52.154.120",
+    "establishedSessions": 4,
+    "totalBytes": 15797632
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "111.224.166.205",
+    "establishedSessions": 4,
+    "totalBytes": 14831016
+  },
+  {
+    "ipBAddress": "192.168.15.198",
+    "ipAAddress": "49.7.37.60",
+    "establishedSessions": 45,
+    "totalBytes": 13999100
+  },
+  {
+    "ipBAddress": "113.113.73.43",
+    "ipAAddress": "10.0.0.86",
+    "establishedSessions": 64,
+    "totalBytes": 13944878
+  },
+  {
+    "ipBAddress": "112.90.80.126",
+    "ipAAddress": "10.0.0.86",
+    "establishedSessions": 12,
+    "totalBytes": 12053636
+  },
+  {
+    "ipBAddress": "112.90.80.126",
+    "ipAAddress": "10.0.0.10",
+    "establishedSessions": 18,
+    "totalBytes": 11514246
+  },
+  {
+    "ipBAddress": "109.244.196.69",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 22,
+    "totalBytes": 11441178
+  },
+  {
+    "ipBAddress": "112.90.80.126",
+    "ipAAddress": "10.0.0.31",
+    "establishedSessions": 9,
+    "totalBytes": 11229910
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "140.75.164.47",
+    "establishedSessions": 4,
+    "totalBytes": 10916584
+  },
+  {
+    "ipBAddress": "192.168.15.94",
+    "ipAAddress": "157.119.175.227",
+    "establishedSessions": 4,
+    "totalBytes": 9305963
+  },
+  {
+    "ipBAddress": "111.170.26.43",
+    "ipAAddress": "10.0.0.34",
+    "establishedSessions": 76,
+    "totalBytes": 7779756
+  },
+  {
+    "ipBAddress": "175.27.207.11",
+    "ipAAddress": "10.0.0.16",
+    "establishedSessions": 8,
+    "totalBytes": 7341960
+  },
+  {
+    "ipBAddress": "109.244.227.116",
+    "ipAAddress": "10.0.0.10",
+    "establishedSessions": 0,
+    "totalBytes": 7276814
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.149.237.38",
+    "establishedSessions": 0,
+    "totalBytes": 7247724
+  },
+  {
+    "ipBAddress": "10.0.0.12",
+    "ipAAddress": "1.13.13.16",
+    "establishedSessions": 8,
+    "totalBytes": 7196754
+  },
+  {
+    "ipBAddress": "203.187.160.133",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 1,
+    "totalBytes": 7175213
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "121.51.184.35",
+    "establishedSessions": 5,
+    "totalBytes": 7031456
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "182.254.60.112",
+    "establishedSessions": 14,
+    "totalBytes": 6896211
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "140.250.43.157",
+    "establishedSessions": 0,
+    "totalBytes": 6697772
+  },
+  {
+    "ipBAddress": "192.168.15.169",
+    "ipAAddress": "109.244.227.116",
+    "establishedSessions": 2,
+    "totalBytes": 6482270
+  },
+  {
+    "ipBAddress": "192.168.15.122",
+    "ipAAddress": "121.51.124.145",
+    "establishedSessions": 33,
+    "totalBytes": 6372962
+  },
+  {
+    "ipBAddress": "157.119.175.230",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 27,
+    "totalBytes": 6323055
+  },
+  {
+    "ipBAddress": "203.187.160.131",
+    "ipAAddress": "10.0.0.101",
+    "establishedSessions": 1,
+    "totalBytes": 6147611
+  },
+  {
+    "ipBAddress": "103.151.149.56",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 56,
+    "totalBytes": 6044928
+  },
+  {
+    "ipBAddress": "222.175.207.90",
+    "ipAAddress": "192.168.15.96",
+    "establishedSessions": 0,
+    "totalBytes": 5999952
+  },
+  {
+    "ipBAddress": "192.168.15.169",
+    "ipAAddress": "184.28.50.136",
+    "establishedSessions": 6,
+    "totalBytes": 5942164
+  },
+  {
+    "ipBAddress": "157.119.175.231",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 1,
+    "totalBytes": 5924927
+  },
+  {
+    "ipBAddress": "23.201.49.112",
+    "ipAAddress": "10.0.0.83",
+    "establishedSessions": 2,
+    "totalBytes": 5853143
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "106.125.151.91",
+    "establishedSessions": 0,
+    "totalBytes": 5454432
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "113.123.200.7",
+    "establishedSessions": 2,
+    "totalBytes": 4983856
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "36.102.213.6",
+    "establishedSessions": 26,
+    "totalBytes": 4839142
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "1.181.164.16",
+    "establishedSessions": 0,
+    "totalBytes": 4796148
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "106.116.8.184",
+    "establishedSessions": 4,
+    "totalBytes": 4794648
+  },
+  {
+    "ipBAddress": "192.168.15.245",
+    "ipAAddress": "121.51.49.57",
+    "establishedSessions": 3,
+    "totalBytes": 4765792
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.52.142.66",
+    "establishedSessions": 0,
+    "totalBytes": 4534160
+  },
+  {
+    "ipBAddress": "223.10.83.157",
+    "ipAAddress": "192.168.15.96",
+    "establishedSessions": 0,
+    "totalBytes": 4529400
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "144.52.128.231",
+    "establishedSessions": 2,
+    "totalBytes": 4427620
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "113.123.255.211",
+    "establishedSessions": 2,
+    "totalBytes": 4369400
+  },
+  {
+    "ipBAddress": "10.1.0.105",
+    "ipAAddress": "10.0.3.148",
+    "establishedSessions": 16,
+    "totalBytes": 4366740
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.52.140.130",
+    "establishedSessions": 0,
+    "totalBytes": 4357848
+  },
+  {
+    "ipBAddress": "103.151.149.54",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 1,
+    "totalBytes": 4309726
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.161.84.205",
+    "establishedSessions": 0,
+    "totalBytes": 4228556
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "144.123.140.54",
+    "establishedSessions": 4,
+    "totalBytes": 4031144
+  },
+  {
+    "ipBAddress": "222.199.191.35",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 1,
+    "totalBytes": 3967746
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "106.46.206.114",
+    "establishedSessions": 2,
+    "totalBytes": 3952252
+  },
+  {
+    "ipBAddress": "192.168.15.198",
+    "ipAAddress": "103.151.149.51",
+    "establishedSessions": 13,
+    "totalBytes": 3912556
+  },
+  {
+    "ipBAddress": "175.27.207.209",
+    "ipAAddress": "10.0.0.72",
+    "establishedSessions": 28,
+    "totalBytes": 3858912
+  },
+  {
+    "ipBAddress": "192.168.15.169",
+    "ipAAddress": "118.182.253.157",
+    "establishedSessions": 3,
+    "totalBytes": 3810876
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "1.198.104.125",
+    "establishedSessions": 0,
+    "totalBytes": 3798528
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "182.254.54.167",
+    "establishedSessions": 35,
+    "totalBytes": 3760374
+  },
+  {
+    "ipBAddress": "175.27.207.109",
+    "ipAAddress": "10.0.0.55",
+    "establishedSessions": 5,
+    "totalBytes": 3694782
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "182.47.181.135",
+    "establishedSessions": 0,
+    "totalBytes": 3677020
+  },
+  {
+    "ipBAddress": "175.27.188.191",
+    "ipAAddress": "10.0.0.21",
+    "establishedSessions": 3,
+    "totalBytes": 3670209
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "123.183.31.253",
+    "establishedSessions": 4,
+    "totalBytes": 3629144
+  },
+  {
+    "ipBAddress": "192.168.15.94",
+    "ipAAddress": "182.254.54.206",
+    "establishedSessions": 1,
+    "totalBytes": 3612329
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "175.27.2.19",
+    "establishedSessions": 6,
+    "totalBytes": 3494238
+  },
+  {
+    "ipBAddress": "182.254.59.166",
+    "ipAAddress": "10.0.0.19",
+    "establishedSessions": 2,
+    "totalBytes": 3386883
+  },
+  {
+    "ipBAddress": "192.168.15.69",
+    "ipAAddress": "1.13.8.204",
+    "establishedSessions": 6,
+    "totalBytes": 3251204
+  },
+  {
+    "ipBAddress": "10.0.0.200",
+    "ipAAddress": "10.0.0.101",
+    "establishedSessions": 2,
+    "totalBytes": 3140804
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "121.56.31.119",
+    "establishedSessions": 0,
+    "totalBytes": 3050084
+  },
+  {
+    "ipBAddress": "192.168.15.173",
+    "ipAAddress": "157.119.175.243",
+    "establishedSessions": 6,
+    "totalBytes": 2941488
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "27.184.50.189",
+    "establishedSessions": 4,
+    "totalBytes": 2896424
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "103.151.149.73",
+    "establishedSessions": 31,
+    "totalBytes": 2860046
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "182.254.59.153",
+    "establishedSessions": 1,
+    "totalBytes": 2767776
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "1.195.139.204",
+    "establishedSessions": 4,
+    "totalBytes": 2751352
+  },
+  {
+    "ipBAddress": "103.151.149.52",
+    "ipAAddress": "10.0.0.99",
+    "establishedSessions": 35,
+    "totalBytes": 2699444
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "106.35.19.183",
+    "establishedSessions": 4,
+    "totalBytes": 2498708
+  },
+  {
+    "ipBAddress": "18.139.84.250",
+    "ipAAddress": "10.0.0.21",
+    "establishedSessions": 5,
+    "totalBytes": 2495829
+  },
+  {
+    "ipBAddress": "182.61.128.198",
+    "ipAAddress": "10.0.0.80",
+    "establishedSessions": 1,
+    "totalBytes": 2489946
+  },
+  {
+    "ipBAddress": "218.93.204.43",
+    "ipAAddress": "10.0.0.153",
+    "establishedSessions": 6,
+    "totalBytes": 2488990
+  },
+  {
+    "ipBAddress": "192.168.15.96",
+    "ipAAddress": "101.236.13.9",
+    "establishedSessions": 4,
+    "totalBytes": 2478514
+  },
+  {
+    "ipBAddress": "192.168.15.255",
+    "ipAAddress": "192.168.15.152",
+    "establishedSessions": 0,
+    "totalBytes": 2474522
+  },
+  {
+    "ipBAddress": "192.168.15.245",
+    "ipAAddress": "182.254.48.164",
+    "establishedSessions": 71,
+    "totalBytes": 2466993
+  },
+  {
+    "ipBAddress": "203.208.41.34",
+    "ipAAddress": "10.0.0.80",
+    "establishedSessions": 6,
+    "totalBytes": 2444512
+  },
+  {
+    "ipBAddress": "192.168.15.245",
+    "ipAAddress": "117.107.141.52",
+    "establishedSessions": 94,
+    "totalBytes": 2408386
+  }
+]
