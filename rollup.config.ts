@@ -2,19 +2,17 @@ import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
-import dts from "rollup-plugin-dts";
+import * as path from "path";
+import clear from "rollup-plugin-clear";
 import external from "rollup-plugin-peer-deps-external";
 import postcss from "rollup-plugin-postcss";
 import { terser } from "rollup-plugin-terser";
-import * as path from "path";
-
-import pkg from "./package.json";
 
 const outputDir = path.join(__dirname, "/dist");
 
 export default [
   {
-    input: "index.ts",
+    input: "src/index.tsx",
     output: [
       {
         file: path.join(outputDir, "index.js"),
@@ -30,12 +28,22 @@ export default [
     ],
     external: ["react", "react-dom"],
     plugins: [
-      typescript({ tsconfig: "./tsconfig.json", clean: true }),
+      clear({ targets: ["dist"] }),
+      postcss({
+        modules: true,
+        minimize: true,
+        extensions: [".css", ".less"],
+        extract: "css/index.css",
+      }),
+      typescript({ tsconfig: "./tsconfig.json" }),
       resolve(),
-      babel(),
+      babel({
+        exclude: "node_modules/**",
+        extensions: [".ts", ".tsx"],
+        babelHelpers: "runtime",
+      }),
       external(),
       commonjs(),
-      postcss({ modules: true, extensions: ["css", "less"] }),
       terser(),
     ],
   },

@@ -14,7 +14,8 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationDir": "types",
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "lib": ["esnext", "dom"]
   },
   "include": ["src/**/*"]
 }

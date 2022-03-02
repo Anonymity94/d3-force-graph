@@ -1,18 +1,51 @@
 import * as d3 from "d3";
-import { Simulation, SimulationLinkDatum } from "d3";
-import React, { useCallback, useEffect, useMemo } from "react";
-import type { IForceGraphProps, IGraphData, ILink, INode } from "./typings";
+import { Simulation, ZoomTransform } from "d3";
+import React, {
+  ForwardRefRenderFunction,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import AnyWhereContainer, {
+  IAnyWhereContainerRefReturn,
+} from "./components/AnyWhereContainer";
+import type {
+  IForceGraphHandler,
+  IForceGraphProps,
+  ILink,
+  INode,
+} from "./typings";
+import { formatBytes, formatNumber } from "./utils";
 
-let simulation: Simulation<INode, undefined>;
+// svg 画布
+let svg: d3.Selection<any, unknown, any, any> | undefined;
+// 容器
+let container: d3.Selection<any, unknown, any, any> | undefined;
+// 力导向图实例
+let simulation: Simulation<INode, undefined> | undefined;
 // d3中所有的 node 节点
-let node: any;
-let draggingNode: any;
+let d3Node:
+  | d3.Selection<SVGCircleElement, INode, SVGGElement, unknown>
+  | undefined;
 // d3中所有的边
-let link: any;
+let d3Link:
+  | d3.Selection<SVGLineElement, ILink, SVGGElement, unknown>
+  | undefined;
 // d3中所有的节点标签
-let nodeLabel: any;
-let container: d3.Selection<any, unknown, any, any>;
-let svg: d3.Selection<any, unknown, any, any>;
+let d3NodeLabel: any;
+// 当前正在被拖拽的节点
+let draggingNode: any;
+// 当前选中的节点
+let selectedNode: INode | undefined;
+
+/**
+ * D3 zoom 放缩结果
+ * @see https://www.d3js.org.cn/document/d3-zoom/
+ */
+let zoomTransform: ZoomTransform = d3.zoomIdentity;
 
 const maxLog = Math.ceil(Math.pow(Math.E, 9));
 
@@ -21,9 +54,28 @@ const idRegex = /[\[\]:. ]/g;
 // 节点的颜色
 const foregroundColor = "#303030";
 
+/** 解锁所有的节点 */
+const unLockAllNode = () => {
+  container!.selectAll(".node").each((d: any) => {
+    d.fx = undefined;
+    d.fy = undefined;
+  });
+  simulation!.alphaTarget(0.3).restart();
+};
+
+/** 固定所有的节点 */
+const lockAllNode = () => {
+  container!.selectAll(".node").each((d: any) => {
+    d.fx = d.x;
+    d.fy = d.y;
+  });
+  // simulation!.alphaTarget(0.3).restart();
+};
+
 /** 节点拖拽 */
 function drag(simulation: Simulation<INode, undefined>) {
   function dragstarted(event: any, d: any) {
+    console.log("dragstarted", d);
     event.sourceEvent.stopPropagation();
     if (!event.active) {
       simulation.alphaTarget(0.1).restart();
@@ -40,9 +92,6 @@ function drag(simulation: Simulation<INode, undefined>) {
   }
 
   function dragended(event: any, d: any) {
-    if (!event.active) {
-      simulation.alphaTarget(0).stop();
-    }
     draggingNode = undefined;
     d.fx = event.x;
     d.fy = event.y;
@@ -71,14 +120,17 @@ function isConnected(a: INode, b: INode) {
 function nodeFocus(d: INode) {
   // don't apply focus styles if dragging a node
   if (!draggingNode) {
-    node.style("opacity", (o: INode) => {
+    d3Node!.style("opacity", (o: INode) => {
       return isConnected(d, o) ? 1 : 0.1;
     });
-    nodeLabel.attr("display", (o: INode) => {
+    d3NodeLabel.attr("display", (o: INode) => {
       return isConnected(d, o) ? "block" : "none";
     });
-    link.style("opacity", (o: INode) => {
-      return o.source.index === d.index || o.target.index === d.index ? 1 : 0.1;
+    d3Link!.style("opacity", (o) => {
+      return (o.source as INode).index === d.index ||
+        (o.target as INode).index === d.index
+        ? 1
+        : 0.1;
     });
   }
 }
@@ -88,22 +140,22 @@ function linkFocus(l: ILink) {
   const sourceNode = l.source as unknown as INode;
   const targetNode = l.target as unknown as INode;
   if (!draggingNode) {
-    node.style("opacity", (o: INode) => {
+    d3Node!.style("opacity", (o: INode) => {
       // 把边连接的 2 个节点高亮
       return o.index === sourceNode.index || o.index === targetNode.index
         ? 1
         : 0.1;
     });
-    nodeLabel.attr("display", (o: INode) => {
+    d3NodeLabel.attr("display", (o: INode) => {
       // 把边连接的 2 个节点的标签高亮
       return o.index === sourceNode.index || o.index === targetNode.index
         ? "block"
         : "none";
     });
-    link.style("opacity", (o: INode) => {
+    d3Link!.style("opacity", (o) => {
       // 把这条边高亮
-      return o.source.index === sourceNode.index &&
-        o.target.index === targetNode.index
+      return (o.source as INode).index === sourceNode.index &&
+        (o.target as INode).index === targetNode.index
         ? 1
         : 0.1;
     });
@@ -112,29 +164,84 @@ function linkFocus(l: ILink) {
 
 /** 接触所有的聚焦高亮 */
 function unfocus() {
-  nodeLabel.attr("display", "block");
-  node.style("opacity", 1);
-  link.style("opacity", 1);
+  d3NodeLabel.attr("display", "block");
+  d3Node!.style("opacity", 1);
+  d3Link!.style("opacity", 1);
 }
 
-const ForceGraph = ({
-  width = 200,
-  height = 200,
-  weightField,
-  nodes,
-  links,
-}: IForceGraphProps) => {
-  useEffect(() => {
-    drawGraph({ nodes, links });
+const ForceGraph: ForwardRefRenderFunction<
+  IForceGraphHandler,
+  IForceGraphProps
+> = (
+  {
+    width = 200,
+    height = 200,
+    weightField,
+    nodes,
+    links,
 
-    console.log(nodes);
+    nodeActions = [],
+    onNodeClick,
+  },
+  ref
+) => {
+  // 记录
+  const [nodeList, setNodeList] = useState<INode[]>([...nodes]);
+  const [linkList, setLinkList] = useState<ILink[]>([...links]);
+
+  const actionRef = useRef<IAnyWhereContainerRefReturn>(null);
+  const graphContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    drawGraph(nodes, links);
   }, [JSON.stringify(nodes), JSON.stringify(links)]);
+
+  useEffect(() => {
+    return () => {
+      console.log("卸载");
+      // 卸载
+      d3.zoom().on("zoom", null);
+      if (simulation) {
+        simulation.on("tick", null);
+      }
+      d3.drag().on("start", null).on("drag", null).on("end", null);
+      if (svg) {
+        d3Node!.on("mouseover", null).on("mouseout", null);
+        d3Link!.on("mouseover", null).on("mouseout", null);
+
+        // remove svg elements
+        d3Node!.exit().remove();
+        d3Link!.exit().remove();
+        d3NodeLabel.exit().remove();
+        svg.selectAll(".link").remove();
+        svg.selectAll(".node").remove();
+        svg.selectAll(".node-label").remove();
+        container!.remove();
+        svg.remove();
+      }
+
+      setTimeout(() => {
+        // clean up global vars
+        svg = undefined;
+        container = undefined;
+        simulation = undefined;
+
+        d3Node = undefined;
+        d3Link = undefined;
+        d3NodeLabel = undefined;
+        zoomTransform = d3.zoomIdentity;
+
+        draggingNode = undefined;
+        selectedNode = undefined;
+      });
+    };
+  }, []);
 
   const minMaxForScale = useMemo(() => {
     let nodeMax = 1;
     let nodeMin = 1;
 
-    for (const n of nodes) {
+    for (const n of nodeList) {
       if (n[weightField] !== undefined) {
         if (n[weightField] > nodeMax) {
           nodeMax = n[weightField];
@@ -148,7 +255,7 @@ const ForceGraph = ({
     let linkMax = 1;
     let linkMin = 1;
 
-    for (const l of links) {
+    for (const l of linkList) {
       if (l[weightField] !== undefined) {
         if (l[weightField] > linkMax) {
           linkMax = l[weightField];
@@ -176,7 +283,7 @@ const ForceGraph = ({
       linkScaleFactor,
       nodeScaleFactor,
     };
-  }, [weightField, JSON.stringify(nodes), JSON.stringify(links)]);
+  }, [weightField, JSON.stringify(nodeList), JSON.stringify(linkList)]);
 
   /**
    * 计算边的宽度
@@ -224,8 +331,9 @@ const ForceGraph = ({
     return 2 * val;
   };
 
-  const inderInfo = (d: ILink) => {
-    svg
+  /** 显示 Line 提示框 */
+  const showLineInfo = (d: ILink) => {
+    svg!
       .append("foreignObject")
       .attr("id", "label")
       .attr("pointer-events", "none")
@@ -267,11 +375,11 @@ const ForceGraph = ({
           </tr>
           <tr>
             <th>总流量: <th>
-            <td>${d.totalBytes}</td>
+            <td>${formatBytes(d.totalBytes)}</td>
           </tr>
           <tr>
             <th>会话数: <th>
-            <td>${d.establishedSessions}</td>
+            <td>${formatNumber(d.establishedSessions)}</td>
           </tr>
         </table>
         `;
@@ -279,45 +387,120 @@ const ForceGraph = ({
       });
   };
 
-  const removeInfo = () => {
-    svg.selectAll("foreignObject").remove();
+  const removeLineInfo = () => {
+    svg!.selectAll("foreignObject").remove();
+  };
+
+  // map which nodes are linked (for highlighting)
+  const updateLinkedMap = (links: ILink[]) => {
+    linkedByIndex = {};
+    console.log("links", links);
+    links.forEach((d) => {
+      linkedByIndex[d.source + "," + d.target] = true;
+    });
+    console.log("linkedByIndex", linkedByIndex);
+  };
+
+  /** 绑定节点事件 */
+  const bindNodeEvents = () => {
+    if (!d3Node) {
+      return;
+    }
+    d3Node
+      .on("mouseover", (e: any, d: INode) => {
+        console.log("node mouseover", d);
+        if (draggingNode) {
+          return;
+        }
+        d3.select(e.currentTarget).style("cursor", "pointer");
+        nodeFocus(d);
+      })
+      .on("mouseout", (e: any, d: INode) => {
+        d3.select(e.currentTarget).style("cursor", "default");
+        unfocus();
+      })
+      .on("click", (event: any, d: INode) => {
+        // 阻止冒泡
+        event.stopPropagation();
+        if (draggingNode) {
+          return;
+        }
+        selectedNode = d;
+        nodeFocus(d);
+        console.log("node cliclk", d);
+
+        if (nodeActions.length > 0) {
+          // 显示节点操作菜单
+          actionRef?.current?.updateVisible(true);
+          // 获取放缩后的坐标
+          const newPos = zoomTransform.translate(d.x as number, d.y as number);
+          // 更新弹出菜单的显示位置
+          actionRef?.current?.updatePosition({
+            left: (newPos.x as number) + 20,
+            top: (newPos.y as number) + 40,
+          });
+        }
+      }) // @ts-ignore
+      .call(drag(simulation));
+  };
+
+  const bindLinkEvents = () => {
+    if (!d3Link) {
+      return;
+    }
+    d3Link
+      .on("mouseover", (e: any, l: ILink) => {
+        if (draggingNode) {
+          return;
+        }
+        // 高亮这条边和 2 个节点
+        linkFocus(l);
+        showLineInfo(l);
+      })
+      .on("mouseout", () => {
+        unfocus();
+        removeLineInfo();
+      });
   };
 
   /**
    * 画图
    */
-  const drawGraph = useCallback((data: IGraphData) => {
+  const drawGraph = useCallback((nodesData: INode[], linksData: ILink[]) => {
     if (svg) {
       // remove any existing nodes
-      node.exit().remove();
-      link.exit().remove();
-      nodeLabel.exit().remove();
+      d3Node!.exit().remove();
+      d3Link!.exit().remove();
+      d3NodeLabel.exit().remove();
       svg.selectAll(".link").remove();
       svg.selectAll(".node").remove();
       svg.selectAll(".node-label").remove();
     }
 
-    if (!data.nodes.length) {
+    if (!nodesData.length) {
       return;
     }
 
-    // map which nodes are linked (for highlighting)
-    linkedByIndex = {};
-    data.links.forEach((d) => {
-      linkedByIndex[d.source + "," + d.target] = true;
-    });
+    const nodesDataCopy = nodesData.map((d) => Object.create(d));
+    const linksDataCopy = linksData.map((d) => Object.create(d));
 
-    // get the node and link data
-    const linksData = data.links.map((d) => Object.create(d));
-    const nodesData = data.nodes.map((d) => Object.create(d));
+    updateLinkedMap(linksDataCopy);
+
+    if (!svg) {
+      svg = d3
+        .select(".connections-graph")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("id", "graphSvg");
+    }
 
     // setup the force directed graph
     simulation = d3
-      .forceSimulation(nodesData)
+      .forceSimulation(nodesDataCopy)
       //link froce(弹簧模型) 可以根据 link distance 将有关联的两个节点拉近或者推远。力的强度与被链接两个节点的距离成比例，类似弹簧力
       .force(
         "link",
-        d3.forceLink(links).id((d) => {
+        d3.forceLink(linksDataCopy).id((d) => {
           return (d as INode).id; // tell the links where to link
         })
       )
@@ -335,39 +518,36 @@ const ForceGraph = ({
       // positioning force along y-axis for disjoint graph
       .force("y", d3.forceY());
 
-    if (!svg) {
-      svg = d3
-        .select(".connections-graph")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("id", "graphSvg");
-    }
-
     if (!container) {
       // add container for zoomability
       // @ts-ignore
       container = svg.append("g");
     }
 
-    // add zoomability
-
-    svg.call(
-      d3
-        .zoom()
-        .scaleExtent([0.1, 4])
-        .on("zoom", (event) => {
-          container.attr("transform", event.transform);
-        })
-    );
+    svg
+      .call(
+        d3
+          .zoom()
+          .scaleExtent([1, 4])
+          .on("zoom", (event) => {
+            zoomTransform = event.transform;
+            container!.attr("transform", event.transform);
+          })
+      )
+      .on("click", (e) => {
+        console.log("svg click");
+        selectedNode = undefined;
+        actionRef?.current?.updateVisible(false);
+      });
 
     // add links
-    link = container
+    d3Link = container
       .append("g")
       .attr("class", "link-wrap")
       .attr("stroke", foregroundColor)
       .attr("stroke-opacity", 0.4)
       .selectAll("line")
-      .data(linksData)
+      .data(linksDataCopy)
       .enter()
       .append("line")
       .attr("class", "link")
@@ -376,79 +556,15 @@ const ForceGraph = ({
       })
       .attr("stroke-width", calculateLinkWeight);
 
-    // const edgepaths = container
-    //   .append("g")
-    //   .attr("class", "link-path-wrap")
-    //   .selectAll(".edgepath")
-    //   .data(linksData)
-    //   .enter()
-    //   .append("path")
-    //   .attr(
-    //     "d",
-    //     (d) =>
-    //       "M " +
-    //       d.source.x +
-    //       " " +
-    //       d.source.y +
-    //       " L " +
-    //       d.target.x +
-    //       " " +
-    //       d.target.y
-    //   )
-    //   .attr("class", "edgepath")
-    //   .attr("id", (d, i) => `edgepath${i}`)
-    //   .style("pointer-events", "none");
-
-    // const edgelabels = container
-    //   .append("g")
-    //   .attr("class", "link-label-wrap")
-    //   .selectAll(".edgelabel")
-    //   .data(linksData)
-    //   .enter()
-    //   .append("text")
-    //   .style("pointer-events", "none")
-    //   .attr("class", "edgelabel")
-    //   .attr("id", (d, i) => "edgelabel" + i)
-    //   .attr("dy", (d, i) => calculateLinkWeight(d) + 0)
-    //   .attr("dx", 80)
-    //   .attr("font-size", 10)
-    //   .attr("fill", "red");
-
-    // edgelabels
-    //   .append("textPath")
-    //   .attr("xlink:href", function (d, i) {
-    //     return "#edgepath" + i;
-    //   })
-    //   .style("pointer-events", "none")
-    //   .text(function (d, i) {
-    //     return "label " + i;
-    //   });
-
     // add link mouse listeners
-    link
-      .on("mouseover", (e: any, l: ILink) => {
-        if (draggingNode) {
-          return;
-        }
-        // 高亮这条边和 2 个节点
-        linkFocus(l);
-        inderInfo(l);
-        console.log(e);
-        console.log(l);
-        console.log(node);
-        console.log(link);
-      })
-      .on("mouseout", () => {
-        unfocus();
-        removeInfo();
-      });
+    bindLinkEvents();
 
     // add nodes
-    node = container
+    d3Node = container
       .append("g")
       .attr("class", "node-wrap")
       .selectAll("circle")
-      .data(nodesData)
+      .data(nodesDataCopy)
       .enter()
       .append("circle")
       .attr("class", "node")
@@ -460,36 +576,17 @@ const ForceGraph = ({
       })
       .attr("r", calculateNodeWeight)
       .attr("stroke", foregroundColor)
-      .attr("stroke-width", 0.5)
-      // @ts-ignore
-      .call(drag(simulation));
+      .attr("stroke-width", 0.5);
 
-    // add node mouse listeners for showing focus and popups
-    node
-      .on("mouseover", (e: any, d: INode) => {
-        if (draggingNode) {
-          return;
-        }
-        console.log(d);
-        nodeFocus(d);
-      })
-      .on("mouseout", (d: INode) => {
-        unfocus();
-      })
-      .on("click", (d: INode) => {
-        if (draggingNode) {
-          return;
-        }
-        nodeFocus(d);
-        console.log(d);
-      });
+    // Node 节点绑定事件
+    bindNodeEvents();
 
     // add node labels
-    nodeLabel = container
+    d3NodeLabel = container
       .append("g")
       .attr("class", "node-label-wrap")
       .selectAll("text")
-      .data(nodesData)
+      .data(nodesDataCopy)
       .enter()
       .append("text")
       .attr("dx", calculateNodeLabelOffset)
@@ -509,38 +606,138 @@ const ForceGraph = ({
     // listen on each tick of the simulation's internal timer
     simulation.on("tick", () => {
       // position links
-      link
-        .attr("x1", (d: SimulationLinkDatum<INode>) => (d.source as INode).x)
-        .attr("y1", (d: SimulationLinkDatum<INode>) => (d.source as INode).y)
-        .attr("x2", (d: SimulationLinkDatum<INode>) => (d.target as INode).x)
-        .attr("y2", (d: SimulationLinkDatum<INode>) => (d.target as INode).y);
-
-      // edgepaths.attr("d", function (d) {
-      //   var path =
-      //     "M " +
-      //     d.source.x +
-      //     " " +
-      //     d.source.y +
-      //     " L " +
-      //     d.target.x +
-      //     " " +
-      //     d.target.y;
-      //   //console.log(d)
-      //   return path;
-      // });
+      d3Link!
+        .attr("x1", (d) => (d.source as INode).x!)
+        .attr("y1", (d) => (d.source as INode).y!)
+        .attr("x2", (d) => (d.target as INode).x!)
+        .attr("y2", (d) => (d.target as INode).y!);
 
       // position nodes
-      node.attr("cx", (d: INode) => d.x).attr("cy", (d: INode) => d.y);
+      d3Node!.attr("cx", (d: INode) => d.x!).attr("cy", (d: INode) => d.y!);
 
       // position node labels
-      nodeLabel.attr(
+      d3NodeLabel.attr(
         "transform",
         (d: INode) => "translate(" + d.x + "," + d.y + ")"
       );
     });
   }, []);
 
-  return <svg className="connections-graph"></svg>;
+  /**
+   * 更新 Graph
+   */
+  const updateGraph = useCallback(
+    (newNodes: INode[], newLinks: ILink[]) => {
+      console.log("updateGraph");
+
+      lockAllNode();
+      // simulation!.alpha(1).stop();
+
+      const allNodes = [...nodeList, ...newNodes];
+      setNodeList(allNodes);
+
+      const allLinks = [...linkList, ...newLinks];
+      setLinkList(allLinks);
+
+      const nodesDataCopy = allNodes.map((d) => Object.create(d));
+      const linksDataCopy = allLinks.map((d) => Object.create(d));
+
+      updateLinkedMap(linksDataCopy);
+
+      d3Node = d3Node!
+        .data(nodesDataCopy, (d) => d.id)
+        .enter()
+        .append("circle")
+        .attr("class", "node")
+        .attr("id", (d) => {
+          return "id" + d.id.replace(idRegex, "_");
+        })
+        .attr("fill", (d) => {
+          return "#66b689";
+        })
+        .attr("r", calculateNodeWeight)
+        .attr("stroke", foregroundColor)
+        .attr("stroke-width", 0.5)
+        .merge(d3Node!);
+
+      bindNodeEvents();
+
+      d3NodeLabel = d3NodeLabel!
+        .data(nodesDataCopy)
+        .enter()
+        .append("text")
+        .attr("dx", calculateNodeLabelOffset)
+        .attr("id", (d: INode) => {
+          return "id" + d.id.replace(idRegex, "_") + "-label";
+        })
+        .attr("dy", "2px")
+        .attr("class", "node-label")
+        .style("font-size", "12px")
+        .style("font-weight", "normal")
+        .style("font-style", "normal")
+        .style("pointer-events", "none") // to prevent mouseover/drag capture
+        .text((d: INode) => {
+          return d.id;
+        })
+        .merge(d3NodeLabel);
+
+      d3Link = d3Link!
+        .data(linksDataCopy)
+        .enter()
+        .append("line")
+        .attr("class", "link")
+        .attr("id", function (d, i) {
+          return "link-path-" + i;
+        })
+        .attr("stroke-width", calculateLinkWeight)
+        .merge(d3Link!);
+      bindLinkEvents();
+
+      simulation!.nodes(nodesDataCopy);
+      simulation!.force(
+        "link",
+        d3.forceLink(linksDataCopy).id((d) => {
+          return (d as INode).id; // tell the links where to link
+        })
+      );
+      simulation!.alpha(1);
+    },
+    [JSON.stringify(nodeList), JSON.stringify(linkList)]
+  );
+
+  useImperativeHandle(ref, () => ({
+    update: updateGraph,
+  }));
+
+  return (
+    <>
+      <div ref={graphContainerRef}>
+        <svg className="connections-graph"></svg>
+      </div>
+      <AnyWhereContainer ref={actionRef} style={{ padding: 0 }}>
+        {nodeActions.length > 0 && (
+          <ul>
+            {nodeActions.map((action) => (
+              <li
+                key={action.key}
+                onClick={() => {
+                  if (onNodeClick && selectedNode) {
+                    // 传递 click
+                    onNodeClick(action, selectedNode!);
+                    // 移除菜单
+                    actionRef?.current?.updateVisible(false);
+                    selectedNode = undefined;
+                  }
+                }}
+              >
+                {action.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </AnyWhereContainer>
+    </>
+  );
 };
 
-export default ForceGraph;
+export default React.forwardRef(ForceGraph);

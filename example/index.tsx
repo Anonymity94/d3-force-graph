@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useRef } from "react";
 import ReactDOM from "react-dom";
-
+import { IForceGraphHandler } from "../src/typings";
 import ForceGraph from "../src/index";
-import graphData from "./data1000.json";
+import { faker } from "@faker-js/faker";
+import graphData from "./data5.json";
+
+/** 节点操作菜单 */
+enum ENodeOperateMenuKey {
+  /** IP下钻 */
+  IP_DILLDOWN = "ip-dilldown",
+  /** 添加IP过滤 */
+  IP_FILTER = "ip-filter",
+  /** 跳转到会话详单 */
+  FLOW_RECORD = "flow-record",
+  /** 跳转到流量分析 */
+  FLOW_LOCATION = "flow/location",
+  /** 跳转到数据包 */
+  PACKET = "packet",
+}
 
 // 组装数据
 const nodes = [];
@@ -52,6 +67,7 @@ graphData.forEach((row) => {
       source: ipAAddress,
       target: ipBAddress,
       totalBytes: row.totalBytes,
+      establishedSessions: row.establishedSessions,
     });
   }
 });
@@ -60,14 +76,54 @@ console.log(nodeSummary["192.168.15.96"]);
 console.log(nodeSummary["42.81.176.204"]);
 
 const Demo = () => {
+  const graphRef = useRef<IForceGraphHandler>();
   return (
-    <ForceGraph
-      weightField="totalBytes"
-      width={1800}
-      height={800}
-      nodes={nodes.map((n) => ({ ...n, ...(nodeSummary[n.id] || {}) }))}
-      links={links}
-    ></ForceGraph>
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          const mockIp = faker.internet.ip();
+          graphRef?.current.update(
+            [
+              {
+                id: mockIp,
+                establishedSessions: 10000,
+                totalBytes: 12000,
+              },
+            ],
+            [
+              {
+                source: mockIp,
+                target: "10.0.0.110",
+                establishedSessions: 42,
+                totalBytes: 332302649,
+              },
+            ]
+          );
+        }}
+      >
+        新增节点
+      </button>
+      <ForceGraph
+        ref={graphRef}
+        weightField="totalBytes"
+        width={1800}
+        height={800}
+        nodes={nodes.map((n) => ({ ...n, ...(nodeSummary[n.id] || {}) }))}
+        links={links}
+        nodeActions={[
+          { key: ENodeOperateMenuKey.IP_DILLDOWN, label: "IP下钻" },
+          { key: ENodeOperateMenuKey.IP_FILTER, label: "添加IP过滤" },
+          { key: ENodeOperateMenuKey.FLOW_RECORD, label: "会话详单" },
+          { key: ENodeOperateMenuKey.FLOW_LOCATION, label: "流量分析" },
+          { key: ENodeOperateMenuKey.PACKET, label: "数据包" },
+        ]}
+        onNodeClick={(action, node) => {
+          console.log(action);
+          console.log(node);
+        }}
+      />
+    </>
   );
 };
 
