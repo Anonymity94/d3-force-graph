@@ -1,5 +1,5 @@
-import { SimulationLinkDatum, SimulationNodeDatum } from "d3";
-import { ReactNode } from "react";
+import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
+import { ReactNode } from 'react';
 
 interface INodeAction {
   key: string;
@@ -17,6 +17,8 @@ export interface IForceGraphProps extends IGraphData {
   height: number;
   /** link 所表示的字段含义 */
   weightField: string;
+  /** 主题 */
+  theme?: 'light' | 'dark';
   /** 节点操作按钮 */
   nodeActions?: INodeAction[];
   /** 节点点击事件 */
@@ -38,3 +40,16 @@ export interface INode extends SimulationNodeDatum {
 export interface ILink extends SimulationLinkDatum<INode> {
   [key: string]: any;
 }
+
+// D3 内的类型
+// ===============
+/** D3 simulation */
+export type D3Simulation = Simulation<INode, undefined>;
+/** D3 Node */
+export type D3Node =
+  | d3.Selection<SVGCircleElement, INode, SVGGElement, unknown>
+  | undefined;
+/** D3 link */
+export type D3Link =
+  | d3.Selection<SVGLineElement, ILink, SVGGElement, unknown>
+  | undefined;

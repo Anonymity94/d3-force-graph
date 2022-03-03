@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { IForceGraphHandler } from "../src/typings";
 import ForceGraph from "../src/index";
 import { faker } from "@faker-js/faker";
-import graphData from "./data5.json";
+import graphData from "./data100.json";
 
 /** 节点操作菜单 */
 enum ENodeOperateMenuKey {
