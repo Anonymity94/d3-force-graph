@@ -3,3 +3,5 @@ test/*.json
 dist
 .cache
 .DS_Store
+
+!example/dist
