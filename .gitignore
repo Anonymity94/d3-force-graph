@@ -1,7 +1,6 @@
 node_modules
 test/*.json
 dist
+example/dist
 .cache
 .DS_Store
-
-!example/dist
