@@ -1,0 +1,19 @@
+name: GitHub Actions Build GitHub.io Page
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v2
+      env:
+        PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        PUBLISH_BRANCH: example
+        PUBLISH_DIR: ./example/dist
+        BUILD_SCRIPT: yarn global add parcel-bundler && yarn && yarn run demo:prod
