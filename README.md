@@ -3,7 +3,12 @@
 ## Dev
 
 ```bash
-yarn 
+yarn
+
+# demo dev
 yarn run demo:dev
-# 访问 http://localhost:1234 
+# 访问 http://localhost:1234
+
+# 构建 demo
+yarn run demo:prod
 ```
