@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "demo:dev": "parcel example/index.html --out-dir example/dist",
-    "demo:prod": "parcel build example/index.html --out-dir example/dist --no-source-maps --no-cache"
+    "demo:prod": "parcel build example/index.html --out-dir example/dist --no-source-maps --no-cache --public-url ./d3-force-graph/"
   },
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
