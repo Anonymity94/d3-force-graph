@@ -4,7 +4,7 @@ import save from './assets/save.svg';
 import unlock from './assets/unlock.svg';
 import zoomIn from './assets/zoom-in.svg';
 import zoomOut from './assets/zoom-out.svg';
-import './index.less';
+import styles from './index.less';
 
 export interface IControlAction {
   key: 'zoomOut' | 'zoomIn' | 'lock' | 'unlock' | 'save';
@@ -45,11 +45,11 @@ const GraphControl = ({ onClick }: IGraphControlProps) => {
   ];
 
   return (
-    <div className="control">
+    <div className={styles.control}>
       {controlActions.map((action) => (
         <div
           key={action.key}
-          className="control-item"
+          className={styles['control-item']}
           onClick={() => {
             if (onClick) {
               onClick(action);
@@ -57,7 +57,7 @@ const GraphControl = ({ onClick }: IGraphControlProps) => {
           }}
           title={action.description}
         >
-          <img className="control-item__icon" src={action.icon} />
+          <img className={styles['control-item__icon']} src={action.icon} />
         </div>
       ))}
     </div>

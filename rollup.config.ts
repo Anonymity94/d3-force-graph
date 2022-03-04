@@ -27,14 +27,14 @@ export default [
         sourcemap: false,
       },
     ],
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', 'd3'],
     plugins: [
       clear({ targets: ['dist'] }),
       postcss({
         modules: true,
         minimize: true,
         extensions: ['.css', '.less'],
-        extract: 'css/index.css',
+        extract: 'style/index.css',
       }),
       typescript({ tsconfig: './tsconfig.json' }),
       resolve(),

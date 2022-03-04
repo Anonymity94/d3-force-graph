@@ -6,7 +6,7 @@ export const defaultLightTheme: ITheme = {
   backgroundColor: '#fff',
   nodeColor: '#66b689',
   nodeLabelColor: '#333',
-  linkColor: '#303030',
+  edgeColor: '#303030',
 };
 /** 默认的 Dark 主题 */
 export const defaultDarkTheme: ITheme = {
@@ -14,5 +14,5 @@ export const defaultDarkTheme: ITheme = {
   backgroundColor: '#333',
   nodeColor: '#66b689',
   nodeLabelColor: 'rgb(255 255 255 / 80%)',
-  linkColor: 'rgb(255 255 255 / 80%)',
+  edgeColor: 'rgb(255 255 255 / 80%)',
 };

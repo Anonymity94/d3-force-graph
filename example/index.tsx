@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 // import ForceGraph from '@anonymity94/d3-force-graph';
 import ForceGraph from '../src';
+import '@anonymity94/d3-force-graph/dist/style/index.css';
 import { ITheme } from '../src/typings';
 import { defaultDarkTheme, defaultLightTheme } from '../src/utils/theme';
 import graphData from './data100.json';
+import { faker } from '@faker-js/faker';
 
 /** 节点操作菜单 */
 enum ENodeOperateMenuKey {
@@ -75,6 +77,9 @@ graphData.forEach((row) => {
 
 const Demo = () => {
   const [theme, setTheme] = useState<ITheme>(defaultLightTheme);
+  const [width, setWidth] = useState<number>(500);
+  const [height, setHeight] = useState<number>(500);
+
   return (
     <>
       <button
@@ -87,13 +92,26 @@ const Demo = () => {
       >
         切换主题
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          setWidth(
+            faker.datatype.number({ min: 500, max: 1000, precision: 10 }),
+          );
+          setHeight(
+            faker.datatype.number({ min: 500, max: 1000, precision: 10 }),
+          );
+        }}
+      >
+        调整宽高
+      </button>
       <ForceGraph
         theme={theme}
         weightField="totalBytes"
-        width={1800}
-        height={800}
+        width={width}
+        height={height}
         nodes={nodes.map((n) => ({ ...n, ...(nodeSummary[n.id] || {}) }))}
-        links={links}
+        edges={links}
         nodeActions={[
           { key: ENodeOperateMenuKey.IP_DILLDOWN, label: 'IP下钻' },
           { key: ENodeOperateMenuKey.IP_FILTER, label: '添加IP过滤' },
@@ -104,6 +122,17 @@ const Demo = () => {
         onNodeClick={(action, node) => {
           console.log(action);
           console.log(node);
+        }}
+        edgeActions={[
+          { key: ENodeOperateMenuKey.IP_DILLDOWN, label: 'IP下钻111' },
+          { key: ENodeOperateMenuKey.IP_FILTER, label: '添加IP过滤111' },
+          { key: ENodeOperateMenuKey.FLOW_RECORD, label: '会话详单111' },
+          { key: ENodeOperateMenuKey.FLOW_LOCATION, label: '流量分析111' },
+          { key: ENodeOperateMenuKey.PACKET, label: '数据包11' },
+        ]}
+        onEdgeClick={(action, edge) => {
+          console.log(action);
+          console.log(edge);
         }}
       />
     </>

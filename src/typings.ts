@@ -1,7 +1,7 @@
 import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
 import { ReactNode } from 'react';
 
-interface INodeAction {
+interface IAction {
   key: string;
   label: string | ReactNode;
 }
@@ -16,31 +16,35 @@ export interface ITheme {
   /** 节点标签颜色 */
   nodeLabelColor: string;
   /** 边的颜色 */
-  linkColor: string;
+  edgeColor: string;
 }
 
 export interface IForceGraphHandler {
-  update: (nodes: INode[], links: ILink[]) => void;
+  update: (nodes: INode[], edges: IEdge[]) => void;
 }
 
 export interface IForceGraphProps extends IGraphData {
   /** svg 的宽度 */
-  width: number;
+  width?: number;
   /** svg 的高度 */
-  height: number;
+  height?: number;
   /** link 所表示的字段含义 */
   weightField: string;
   /** 主题 */
   theme?: ITheme;
   /** 节点操作按钮 */
-  nodeActions?: INodeAction[];
+  nodeActions?: IAction[];
   /** 节点点击事件 */
-  onNodeClick?: (action: INodeAction, node: INode) => void;
+  onNodeClick?: (action: IAction, node: INode) => void;
+  /** 节点操作按钮 */
+  edgeActions?: IAction[];
+  /** 节点点击事件 */
+  onEdgeClick?: (action: IAction, edge: IEdge) => void;
 }
 
 export interface IGraphData {
   nodes: INode[];
-  links: ILink[];
+  edges: IEdge[];
 }
 
 /** 节点 */
@@ -50,7 +54,7 @@ export interface INode extends SimulationNodeDatum {
 }
 
 /** 边 */
-export interface ILink extends SimulationLinkDatum<INode> {
+export interface IEdge extends SimulationLinkDatum<INode> {
   [key: string]: any;
 }
 
@@ -63,6 +67,6 @@ export type D3Node =
   | d3.Selection<SVGCircleElement, INode, SVGGElement, unknown>
   | undefined;
 /** D3 link */
-export type D3Link =
-  | d3.Selection<SVGLineElement, ILink, SVGGElement, unknown>
+export type D3Edge =
+  | d3.Selection<SVGLineElement, IEdge, SVGGElement, unknown>
   | undefined;

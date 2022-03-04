@@ -1,5 +1,5 @@
-import React, { ReactNode, useImperativeHandle, useState } from "react";
-import "./index.less";
+import React, { ReactNode, useImperativeHandle, useState } from 'react';
+import styles from './index.less';
 
 interface IPosition {
   top?: number;
@@ -45,7 +45,7 @@ const AnyWhereContainer = React.forwardRef<
 
   return (
     <>
-      <div className={`container`} style={{ ...style, ...position }}>
+      <div className={styles.container} style={{ ...style, ...position }}>
         {children}
       </div>
     </>

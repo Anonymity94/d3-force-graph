@@ -12,15 +12,15 @@ import AnyWhereContainer, {
 } from './components/AnyWhereContainer';
 import GraphControl, { IControlAction } from './components/Control';
 import type {
-  D3Link,
+  D3Edge,
   D3Node,
   D3Simulation,
+  IEdge,
   IForceGraphProps,
-  ILink,
   INode,
 } from './typings';
 import { exportPng, formatBytes, formatNumber } from './utils';
-import { defaultLightTheme } from './utils/theme';
+import { defaultDarkTheme, defaultLightTheme } from './utils/theme';
 
 // svg 画布
 let svg: d3.Selection<any, unknown, any, any> | undefined;
@@ -32,13 +32,11 @@ let d3Zoom: d3.ZoomBehavior<Element, unknown>;
 // d3中所有的 node 节点
 let d3Node: D3Node;
 // d3中所有的边
-let d3Link: D3Link;
+let d3Edge: D3Edge;
 // d3中所有的节点标签
 let d3NodeLabel: any;
 // 当前正在被拖拽的节点
 let draggingNode: any;
-// 当前选中的节点
-let selectedNode: INode | undefined;
 
 /**
  * D3 zoom 放缩结果
@@ -126,7 +124,7 @@ function nodeFocus(d: INode) {
     d3NodeLabel.attr('display', (o: INode) => {
       return isConnected(d, o) ? 'block' : 'none';
     });
-    d3Link?.style('opacity', (o) => {
+    d3Edge?.style('opacity', (o) => {
       return (o.source as INode).index === d.index ||
         (o.target as INode).index === d.index
         ? 1
@@ -136,7 +134,7 @@ function nodeFocus(d: INode) {
 }
 
 /** 边聚焦 */
-function linkFocus(l: ILink) {
+function linkFocus(l: IEdge) {
   const sourceNode = l.source as unknown as INode;
   const targetNode = l.target as unknown as INode;
   if (!draggingNode) {
@@ -152,7 +150,7 @@ function linkFocus(l: ILink) {
         ? 'block'
         : 'none';
     });
-    d3Link?.style('opacity', (o) => {
+    d3Edge?.style('opacity', (o) => {
       // 把这条边高亮
       return (o.source as INode).index === sourceNode.index &&
         (o.target as INode).index === targetNode.index
@@ -166,31 +164,38 @@ function linkFocus(l: ILink) {
 function unfocus() {
   d3NodeLabel.attr('display', 'block');
   d3Node?.style('opacity', 1);
-  d3Link?.style('opacity', 1);
+  d3Edge?.style('opacity', 1);
 }
 
 const ForceGraph = ({
-  width = 200,
-  height = 200,
+  width = 500,
+  height = 500,
   weightField,
   nodes,
-  links,
+  edges,
 
   theme = defaultLightTheme,
 
   nodeActions = [],
   onNodeClick,
+
+  edgeActions = [],
+  onEdgeClick,
 }: IForceGraphProps) => {
-  // 记录
   const [nodeList] = useState<INode[]>([...nodes]);
-  const [linkList] = useState<ILink[]>([...links]);
+  const [edgeList] = useState<IEdge[]>([...edges]);
+
+  // 选中的节点
+  const [selectedNode, setSelectedNode] = useState<INode>();
+  // 选中的边
+  const [selectedEdge, setSelectedEdge] = useState<IEdge>();
 
   const actionRef = useRef<IAnyWhereContainerRefReturn>(null);
   const graphContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    drawGraph(nodeList, linkList);
-  }, [JSON.stringify(nodeList), JSON.stringify(linkList)]);
+    drawGraph(nodeList, edgeList);
+  }, [JSON.stringify(nodeList), JSON.stringify(edgeList)]);
 
   useEffect(() => {
     return () => {
@@ -203,11 +208,11 @@ const ForceGraph = ({
       d3.drag().on('start', null).on('drag', null).on('end', null);
       if (svg) {
         d3Node?.on('mouseover', null).on('mouseout', null);
-        d3Link?.on('mouseover', null).on('mouseout', null);
+        d3Edge?.on('mouseover', null).on('mouseout', null);
 
         // remove svg elements
         d3Node?.exit().remove();
-        d3Link?.exit().remove();
+        d3Edge?.exit().remove();
         d3NodeLabel.exit().remove();
         svg.selectAll('.link').remove();
         svg.selectAll('.node').remove();
@@ -222,12 +227,11 @@ const ForceGraph = ({
         container = undefined;
 
         d3Node = undefined;
-        d3Link = undefined;
+        d3Edge = undefined;
         d3NodeLabel = undefined;
         // zoomTransform = d3.zoomIdentity;
 
         draggingNode = undefined;
-        selectedNode = undefined;
       });
     };
   }, []);
@@ -237,8 +241,17 @@ const ForceGraph = ({
     svg?.style('background-color', theme.backgroundColor);
     d3Node?.attr('fill', theme.nodeColor);
     d3NodeLabel?.attr('fill', theme.nodeLabelColor);
-    d3Link?.attr('stroke', theme.linkColor);
+    d3Edge?.attr('stroke', theme.edgeColor);
   }, [theme]);
+
+  useEffect(() => {
+    svg?.attr('width', width).attr('height', height);
+
+    // container!.attr(
+    //   'transform',
+    //   'translate(0, 0) scale(' + zoomTransform.k + ')',
+    // );
+  }, [width, height]);
 
   const minMaxForScale = useMemo(() => {
     let nodeMax = 1;
@@ -258,7 +271,7 @@ const ForceGraph = ({
     let linkMax = 1;
     let linkMin = 1;
 
-    for (const l of linkList) {
+    for (const l of edgeList) {
       if (l[weightField] !== undefined) {
         if (l[weightField] > linkMax) {
           linkMax = l[weightField];
@@ -286,14 +299,14 @@ const ForceGraph = ({
       linkScaleFactor,
       nodeScaleFactor,
     };
-  }, [weightField, JSON.stringify(nodeList), JSON.stringify(linkList)]);
+  }, [weightField, JSON.stringify(nodeList), JSON.stringify(edgeList)]);
 
   /**
    * 计算边的宽度
    * @param l 边
    * @returns
    */
-  const calculateLinkWeight = (l: ILink) => {
+  const calculateEdgeWeight = (l: IEdge) => {
     let val = weightField ? l[weightField] || 1 : 1;
     if (weightField) {
       val = Math.max(
@@ -334,8 +347,8 @@ const ForceGraph = ({
     return 2 * val;
   };
 
-  /** 显示 Line 提示框 */
-  const showLineInfo = (d: ILink) => {
+  /** 显示 Edge 提示框 */
+  const showEdgeInfo = (d: IEdge) => {
     svg
       ?.append('foreignObject')
       .attr('id', 'label')
@@ -395,7 +408,7 @@ const ForceGraph = ({
   };
 
   // map which nodes are linked (for highlighting)
-  const updateLinkedMap = (links: ILink[]) => {
+  const updateLinkedMap = (links: IEdge[]) => {
     linkedByIndex = {};
     console.log('links', links);
     links.forEach((d) => {
@@ -428,7 +441,8 @@ const ForceGraph = ({
         if (draggingNode) {
           return;
         }
-        selectedNode = d;
+        setSelectedEdge(undefined);
+        setSelectedNode(d);
         nodeFocus(d);
         console.log('node cliclk', d);
 
@@ -449,33 +463,55 @@ const ForceGraph = ({
   }, [simulation]);
 
   /** 绑定边事件 */
-  const bindLinkEvents = () => {
-    if (!d3Link) {
+  const bindEdgeEvents = () => {
+    if (!d3Edge) {
       return;
     }
-    d3Link
-      .on('mouseover', (e: any, l: ILink) => {
+    d3Edge
+      .on('mouseover', (e: any, l: IEdge) => {
         if (draggingNode) {
           return;
         }
         // 高亮这条边和 2 个节点
         linkFocus(l);
-        showLineInfo(l);
+        showEdgeInfo(l);
       })
       .on('mouseout', () => {
         unfocus();
         removeLineInfo();
+      })
+      .on('click', (event: any, d: IEdge) => {
+        // 阻止冒泡
+        event.stopPropagation();
+        setSelectedNode(undefined);
+        setSelectedEdge(d);
+        console.log('edge cliclk', d);
+
+        if (nodeActions.length > 0) {
+          // 显示节点操作菜单
+          actionRef?.current?.updateVisible(true);
+          // 获取放缩后的坐标
+          const newPos = zoomTransform.translate(
+            event.x as number,
+            event.y as number,
+          );
+          // 更新弹出菜单的显示位置
+          actionRef?.current?.updatePosition({
+            left: (newPos.x as number) + 20,
+            top: (newPos.y as number) + 40,
+          });
+        }
       });
   };
 
   /**
    * 画图
    */
-  const drawGraph = (nodesData: INode[], linksData: ILink[]) => {
+  const drawGraph = (nodesData: INode[], linksData: IEdge[]) => {
     if (svg) {
       // remove any existing nodes
       d3Node!.exit().remove();
-      d3Link!.exit().remove();
+      d3Edge!.exit().remove();
       d3NodeLabel.exit().remove();
       svg.selectAll('.link').remove();
       svg.selectAll('.node').remove();
@@ -541,15 +577,15 @@ const ForceGraph = ({
       )
       .on('click', () => {
         console.log('svg click');
-        selectedNode = undefined;
+        setSelectedNode(undefined);
         actionRef?.current?.updateVisible(false);
       });
 
     // add links
-    d3Link = container
+    d3Edge = container
       .append('g')
       .attr('class', 'link-wrap')
-      .attr('stroke', theme.linkColor)
+      .attr('stroke', theme.edgeColor)
       .attr('stroke-opacity', 0.4)
       .selectAll('line')
       .data(linksDataCopy)
@@ -559,10 +595,10 @@ const ForceGraph = ({
       .attr('id', function (d, i) {
         return 'link-path-' + i;
       })
-      .attr('stroke-width', calculateLinkWeight);
+      .attr('stroke-width', calculateEdgeWeight);
 
     // add link mouse listeners
-    bindLinkEvents();
+    bindEdgeEvents();
 
     // add nodes
     d3Node = container
@@ -613,7 +649,7 @@ const ForceGraph = ({
     // listen on each tick of the simulation's internal timer
     simulation?.on('tick', () => {
       // position links
-      d3Link!
+      d3Edge!
         .attr('x1', (d) => (d.source as INode).x!)
         .attr('y1', (d) => (d.source as INode).y!)
         .attr('x2', (d) => (d.target as INode).x!)
@@ -655,34 +691,63 @@ const ForceGraph = ({
 
   return (
     <>
-      <div ref={graphContainerRef}>
+      <div
+        ref={graphContainerRef}
+        style={{
+          position: 'relative',
+          width: width,
+          height: height,
+        }}
+      >
         <svg className="connections-graph"></svg>
         <GraphControl onClick={handleControlClick} />
+        <AnyWhereContainer ref={actionRef} style={{ padding: 0 }}>
+          {selectedNode && nodeActions.length > 0 && (
+            <ul>
+              {nodeActions.map((action) => (
+                <li
+                  key={action.key}
+                  onClick={() => {
+                    if (onNodeClick && selectedNode) {
+                      // 传递 click
+                      onNodeClick(action, selectedNode!);
+                      // 移除菜单
+                      actionRef?.current?.updateVisible(false);
+                      setSelectedNode(undefined);
+                    }
+                  }}
+                >
+                  {action.label}
+                </li>
+              ))}
+            </ul>
+          )}
+          {selectedEdge && edgeActions.length > 0 && (
+            <ul>
+              {edgeActions.map((action) => (
+                <li
+                  key={action.key}
+                  onClick={() => {
+                    if (onEdgeClick && selectedEdge) {
+                      // 传递 click
+                      onEdgeClick(action, selectedEdge!);
+                      // 移除菜单
+                      actionRef?.current?.updateVisible(false);
+                      setSelectedEdge(undefined);
+                    }
+                  }}
+                >
+                  {action.label}
+                </li>
+              ))}
+            </ul>
+          )}
+        </AnyWhereContainer>
       </div>
-      <AnyWhereContainer ref={actionRef} style={{ padding: 0 }}>
-        {nodeActions.length > 0 && (
-          <ul>
-            {nodeActions.map((action) => (
-              <li
-                key={action.key}
-                onClick={() => {
-                  if (onNodeClick && selectedNode) {
-                    // 传递 click
-                    onNodeClick(action, selectedNode!);
-                    // 移除菜单
-                    actionRef?.current?.updateVisible(false);
-                    selectedNode = undefined;
-                  }
-                }}
-              >
-                {action.label}
-              </li>
-            ))}
-          </ul>
-        )}
-      </AnyWhereContainer>
     </>
   );
 };
 
+export { IForceGraphProps };
+export { defaultLightTheme, defaultDarkTheme };
 export default ForceGraph;

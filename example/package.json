@@ -11,14 +11,25 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@anonymity94/d3-force-graph": "^0.0.1"
+    "@anonymity94/d3-force-graph": "^0.0.7",
+    "@faker-js/faker": "^6.0.0-alpha.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5"
+    "@babel/core": "^7.17.5",
+    "@babel/preset-react": "^7.16.7",
+    "postcss-modules": "^4.3.1"
   },
   "browserslist": [
     "defaults",
     "not IE 11",
     "maintained node versions"
-  ]
+  ],
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  },
+  "postcss": {
+    "modules": true
+  }
 }
