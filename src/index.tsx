@@ -490,15 +490,10 @@ const ForceGraph = ({
         if (nodeActions.length > 0) {
           // 显示节点操作菜单
           actionRef?.current?.updateVisible(true);
-          // 获取放缩后的坐标
-          const newPos = zoomTransform.translate(
-            event.x as number,
-            event.y as number,
-          );
           // 更新弹出菜单的显示位置
           actionRef?.current?.updatePosition({
-            left: (newPos.x as number) + 20,
-            top: (newPos.y as number) + 40,
+            left: (event.x as number) + 10,
+            top: (event.y as number) + 10,
           });
         }
       });
