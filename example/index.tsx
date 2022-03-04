@@ -1,22 +1,23 @@
-import React, { useRef } from "react";
-import ReactDOM from "react-dom";
-import { IForceGraphHandler } from "../src/typings";
-import ForceGraph from "../src/index";
-import { faker } from "@faker-js/faker";
-import graphData from "./data100.json";
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+// import ForceGraph from '@anonymity94/d3-force-graph';
+import ForceGraph from '../src';
+import { ITheme } from '../src/typings';
+import { defaultDarkTheme, defaultLightTheme } from '../src/utils/theme';
+import graphData from './data100.json';
 
 /** 节点操作菜单 */
 enum ENodeOperateMenuKey {
   /** IP下钻 */
-  IP_DILLDOWN = "ip-dilldown",
+  IP_DILLDOWN = 'ip-dilldown',
   /** 添加IP过滤 */
-  IP_FILTER = "ip-filter",
+  IP_FILTER = 'ip-filter',
   /** 跳转到会话详单 */
-  FLOW_RECORD = "flow-record",
+  FLOW_RECORD = 'flow-record',
   /** 跳转到流量分析 */
-  FLOW_LOCATION = "flow/location",
+  FLOW_LOCATION = 'flow/location',
   /** 跳转到数据包 */
-  PACKET = "packet",
+  PACKET = 'packet',
 }
 
 // 组装数据
@@ -72,51 +73,33 @@ graphData.forEach((row) => {
   }
 });
 
-console.log(nodeSummary["192.168.15.96"]);
-console.log(nodeSummary["42.81.176.204"]);
-
 const Demo = () => {
-  const graphRef = useRef<IForceGraphHandler>();
+  const [theme, setTheme] = useState<ITheme>(defaultLightTheme);
   return (
     <>
       <button
         type="button"
         onClick={() => {
-          const mockIp = faker.internet.ip();
-          graphRef?.current.update(
-            [
-              {
-                id: mockIp,
-                establishedSessions: 10000,
-                totalBytes: 12000,
-              },
-            ],
-            [
-              {
-                source: mockIp,
-                target: "10.0.0.110",
-                establishedSessions: 42,
-                totalBytes: 332302649,
-              },
-            ]
-          );
+          setTheme((prev) => {
+            return prev.mode === 'light' ? defaultDarkTheme : defaultLightTheme;
+          });
         }}
       >
-        新增节点
+        切换主题
       </button>
       <ForceGraph
-        ref={graphRef}
+        theme={theme}
         weightField="totalBytes"
         width={1800}
         height={800}
         nodes={nodes.map((n) => ({ ...n, ...(nodeSummary[n.id] || {}) }))}
         links={links}
         nodeActions={[
-          { key: ENodeOperateMenuKey.IP_DILLDOWN, label: "IP下钻" },
-          { key: ENodeOperateMenuKey.IP_FILTER, label: "添加IP过滤" },
-          { key: ENodeOperateMenuKey.FLOW_RECORD, label: "会话详单" },
-          { key: ENodeOperateMenuKey.FLOW_LOCATION, label: "流量分析" },
-          { key: ENodeOperateMenuKey.PACKET, label: "数据包" },
+          { key: ENodeOperateMenuKey.IP_DILLDOWN, label: 'IP下钻' },
+          { key: ENodeOperateMenuKey.IP_FILTER, label: '添加IP过滤' },
+          { key: ENodeOperateMenuKey.FLOW_RECORD, label: '会话详单' },
+          { key: ENodeOperateMenuKey.FLOW_LOCATION, label: '流量分析' },
+          { key: ENodeOperateMenuKey.PACKET, label: '数据包' },
         ]}
         onNodeClick={(action, node) => {
           console.log(action);
@@ -127,6 +110,6 @@ const Demo = () => {
   );
 };
 
-const rootNode = document.querySelector("#root");
+const rootNode = document.querySelector('#root');
 
 rootNode && ReactDOM.render(<Demo />, rootNode);

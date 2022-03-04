@@ -1,0 +1,24 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel index.html --out-dir dist",
+    "build": "parcel build index.html --out-dir dist --no-source-maps --no-cache --public-url /d3-force-graph/"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anonymity94/d3-force-graph": "^0.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.5"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "maintained node versions"
+  ]
+}
