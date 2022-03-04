@@ -17,5 +17,5 @@
     "emitDeclarationOnly": true,
     "lib": ["esnext", "dom"]
   },
-  "include": ["src/**/*", "typings.d.ts"]
+  "include": ["index.ts", "src/**/*", "typings.d.ts"]
 }

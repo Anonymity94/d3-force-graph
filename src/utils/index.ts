@@ -1,6 +1,5 @@
 import numeral from 'numeral';
 import * as saveSvgAsPng from 'save-svg-as-png';
-import { foregroundColor } from '../index';
 
 /**
  * @see https://api.highcharts.com.cn/highcharts#lang.numericSymbols
@@ -41,19 +40,5 @@ export function exportPng() {
   saveSvgAsPng.saveSvgAsPng(
     document.getElementById('graphSvg'),
     'connections.png',
-    {
-      // backgroundColor: this.backgroundColor,
-      modifyCss: function (selector: any, properties: any) {
-        if (selector === '.connections-graph text') {
-          // remove .connections-page from selector since element is
-          // rendered outside connections page for saving as png
-          selector = 'text';
-          // make sure that the text uses the foreground property
-          // saveSvgAsPng cannot resolve var(--color-foreground)
-          properties = `fill: ${foregroundColor}`;
-        }
-        return selector + '{' + properties + '}';
-      },
-    },
   );
 }

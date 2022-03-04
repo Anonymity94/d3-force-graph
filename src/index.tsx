@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import { ZoomTransform } from 'd3';
 import React, {
-  ForwardRefRenderFunction,
   useCallback,
   useEffect,
   useMemo,
@@ -16,12 +15,12 @@ import type {
   D3Link,
   D3Node,
   D3Simulation,
-  IForceGraphHandler,
   IForceGraphProps,
   ILink,
   INode,
 } from './typings';
 import { exportPng, formatBytes, formatNumber } from './utils';
+import { defaultLightTheme } from './utils/theme';
 
 // svg 画布
 let svg: d3.Selection<any, unknown, any, any> | undefined;
@@ -50,9 +49,6 @@ let zoomTransform: ZoomTransform = d3.zoomIdentity;
 const maxLog = Math.ceil(Math.pow(Math.E, 9));
 
 const idRegex = /[\[\]:. ]/g;
-
-// 节点的颜色
-export const foregroundColor = '#303030';
 
 /** 解锁所有的节点 */
 const unLockAllNode = () => {
@@ -173,21 +169,18 @@ function unfocus() {
   d3Link?.style('opacity', 1);
 }
 
-const ForceGraph: ForwardRefRenderFunction<
-  IForceGraphHandler,
-  IForceGraphProps
-> = ({
+const ForceGraph = ({
   width = 200,
   height = 200,
   weightField,
   nodes,
   links,
 
-  theme = 'light',
+  theme = defaultLightTheme,
 
   nodeActions = [],
   onNodeClick,
-}) => {
+}: IForceGraphProps) => {
   // 记录
   const [nodeList] = useState<INode[]>([...nodes]);
   const [linkList] = useState<ILink[]>([...links]);
@@ -241,6 +234,10 @@ const ForceGraph: ForwardRefRenderFunction<
 
   useEffect(() => {
     // 动态变化主题
+    svg?.style('background-color', theme.backgroundColor);
+    d3Node?.attr('fill', theme.nodeColor);
+    d3NodeLabel?.attr('fill', theme.nodeLabelColor);
+    d3Link?.attr('stroke', theme.linkColor);
   }, [theme]);
 
   const minMaxForScale = useMemo(() => {
@@ -552,7 +549,7 @@ const ForceGraph: ForwardRefRenderFunction<
     d3Link = container
       .append('g')
       .attr('class', 'link-wrap')
-      .attr('stroke', foregroundColor)
+      .attr('stroke', theme.linkColor)
       .attr('stroke-opacity', 0.4)
       .selectAll('line')
       .data(linksDataCopy)
@@ -580,11 +577,12 @@ const ForceGraph: ForwardRefRenderFunction<
         return 'id' + d.id.replace(idRegex, '_');
       })
       .attr('fill', () => {
-        return '#66b689';
+        return theme.nodeColor;
       })
-      .attr('r', calculateNodeWeight)
-      .attr('stroke', foregroundColor)
-      .attr('stroke-width', 0.5);
+      .attr('r', calculateNodeWeight);
+    // 节点外围的圆圈
+    // .attr('stroke', theme.nodeColor)
+    // .attr('stroke-width', 0.5);
 
     // Node 节点绑定事件
     bindNodeEvents();
@@ -603,6 +601,7 @@ const ForceGraph: ForwardRefRenderFunction<
       })
       .attr('dy', '2px')
       .attr('class', 'node-label')
+      .attr('fill', theme.nodeLabelColor)
       .style('font-size', '12px')
       .style('font-weight', 'normal')
       .style('font-style', 'normal')
@@ -686,4 +685,4 @@ const ForceGraph: ForwardRefRenderFunction<
   );
 };
 
-export default React.forwardRef(ForceGraph);
+export default ForceGraph;

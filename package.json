@@ -1,11 +1,13 @@
 {
-  "name": "d3-force-graph",
-  "version": "1.0.0",
+  "name": "@anonymity94/d3-force-graph",
+  "version": "0.0.2",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "demo:dev": "parcel example/index.html --out-dir example/dist",
-    "demo:prod": "parcel build example/index.html --out-dir example/dist --no-source-maps --no-cache --public-url /d3-force-graph/"
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   },
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",

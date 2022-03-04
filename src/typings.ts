@@ -6,6 +6,19 @@ interface INodeAction {
   label: string | ReactNode;
 }
 
+export interface ITheme {
+  /** 模式 light | dark */
+  mode: 'light' | 'dark';
+  /** 画布背景 */
+  backgroundColor: string;
+  /** 节点颜色 */
+  nodeColor: string;
+  /** 节点标签颜色 */
+  nodeLabelColor: string;
+  /** 边的颜色 */
+  linkColor: string;
+}
+
 export interface IForceGraphHandler {
   update: (nodes: INode[], links: ILink[]) => void;
 }
@@ -18,7 +31,7 @@ export interface IForceGraphProps extends IGraphData {
   /** link 所表示的字段含义 */
   weightField: string;
   /** 主题 */
-  theme?: 'light' | 'dark';
+  theme?: ITheme;
   /** 节点操作按钮 */
   nodeActions?: INodeAction[];
   /** 节点点击事件 */
