@@ -8,6 +8,7 @@ import clear from 'rollup-plugin-clear';
 import external from 'rollup-plugin-peer-deps-external';
 import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
+import autoprefixer from 'autoprefixer';
 
 const outputDir = path.join(__dirname, '/dist');
 
@@ -33,8 +34,9 @@ export default [
       postcss({
         modules: true,
         minimize: true,
+        // extract: true,
         extensions: ['.css', '.less'],
-        extract: 'style/index.css',
+        plugins: [autoprefixer()],
       }),
       typescript({ tsconfig: './tsconfig.json' }),
       resolve(),

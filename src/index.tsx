@@ -168,7 +168,6 @@ function unfocus() {
 }
 
 const ForceGraph = ({
-  width = 500,
   height = 500,
   weightField,
   nodes,
@@ -184,6 +183,7 @@ const ForceGraph = ({
 }: IForceGraphProps) => {
   const [nodeList] = useState<INode[]>([...nodes]);
   const [edgeList] = useState<IEdge[]>([...edges]);
+  const [graphWidth, setGraphWidth] = useState(500);
 
   // 选中的节点
   const [selectedNode, setSelectedNode] = useState<INode>();
@@ -191,7 +191,13 @@ const ForceGraph = ({
   const [selectedEdge, setSelectedEdge] = useState<IEdge>();
 
   const actionRef = useRef<IAnyWhereContainerRefReturn>(null);
-  const graphContainerRef = useRef<HTMLDivElement>(null);
+  // const graphContainerRef = useRef<HTMLDivElement>(null);
+
+  const graphContainerRef = useCallback((node) => {
+    if (node !== null) {
+      setGraphWidth(node.getBoundingClientRect().width);
+    }
+  }, []);
 
   useEffect(() => {
     drawGraph(nodeList, edgeList);
@@ -245,13 +251,9 @@ const ForceGraph = ({
   }, [theme]);
 
   useEffect(() => {
-    svg?.attr('width', width).attr('height', height);
-
-    // container!.attr(
-    //   'transform',
-    //   'translate(0, 0) scale(' + zoomTransform.k + ')',
-    // );
-  }, [width, height]);
+    svg?.attr('height', height);
+    simulation?.force('center', d3.forceCenter(graphWidth / 2, height / 2));
+  }, [graphWidth, height]);
 
   const minMaxForScale = useMemo(() => {
     let nodeMax = 1;
@@ -351,12 +353,11 @@ const ForceGraph = ({
   const showEdgeInfo = (d: IEdge) => {
     svg
       ?.append('foreignObject')
-      .attr('id', 'label')
       .attr('pointer-events', 'none')
       .style('user-select', 'none')
       .attr('x', 15)
       .attr('y', 15)
-      .attr('width', 300)
+      .attr('width', 400)
       .attr('height', 250)
       .selectAll('.legend-table')
       .data(['legend-table'])
@@ -365,36 +366,42 @@ const ForceGraph = ({
       .html(() => {
         const returnHtml = `  
         <style>
-          table {
+          .legend-table {
             width: auto;
             height: auto;
-            padding: 8px;
+            padding: 4px;
             background: #ddd;
             pointer-events: none;
             border-radius: 10px;
+            table-layout: fixed;
+            border-collapse: separate;
+            font-size: 12px;
           }
         
-          th, td {
-            padding: 6px;
-            text-align:right;
+          .legend-table th, .legend-table td {
+            line-height: 20px;
+            text-align: right;
+          }
+          .legend-table th {
+            width: 50px
           }
         </style>
       
         <table>
           <tr>
-            <th>IP_A: <th>
+            <th>IP_A: </th>
             <td>${(d.source as INode).id}</td>
           </tr>
           <tr>
-            <th>IP_B: <th>
+            <th>IP_B: </th>
             <td>${(d.target as INode).id}</td>
           </tr>
           <tr>
-            <th>总流量: <th>
+            <th>总流量: </th>
             <td>${formatBytes(d.totalBytes)}</td>
           </tr>
           <tr>
-            <th>会话数: <th>
+            <th>会话数: </th>
             <td>${formatNumber(d.establishedSessions)}</td>
           </tr>
         </table>
@@ -444,17 +451,15 @@ const ForceGraph = ({
         setSelectedEdge(undefined);
         setSelectedNode(d);
         nodeFocus(d);
-        console.log('node cliclk', d);
+        console.log('node click', d);
 
         if (nodeActions.length > 0) {
           // 显示节点操作菜单
           actionRef?.current?.updateVisible(true);
-          // 获取放缩后的坐标
-          const newPos = zoomTransform.translate(d.x as number, d.y as number);
           // 更新弹出菜单的显示位置
           actionRef?.current?.updatePosition({
-            left: (newPos.x as number) + 20,
-            top: (newPos.y as number) + 40,
+            left: (event.x as number) + 10,
+            top: (event.y as number) + 10,
           });
         }
       })
@@ -472,11 +477,13 @@ const ForceGraph = ({
         if (draggingNode) {
           return;
         }
+        d3.select(e.currentTarget).style('cursor', 'pointer');
         // 高亮这条边和 2 个节点
         linkFocus(l);
         showEdgeInfo(l);
       })
-      .on('mouseout', () => {
+      .on('mouseout', (e: any) => {
+        d3.select(e.currentTarget).style('cursor', 'default');
         unfocus();
         removeLineInfo();
       })
@@ -485,7 +492,8 @@ const ForceGraph = ({
         event.stopPropagation();
         setSelectedNode(undefined);
         setSelectedEdge(d);
-        console.log('edge cliclk', d);
+        console.log('edge click', event);
+        console.log('edge click', d);
 
         if (nodeActions.length > 0) {
           // 显示节点操作菜单
@@ -525,7 +533,7 @@ const ForceGraph = ({
     if (!svg) {
       svg = d3
         .select('.connections-graph')
-        .attr('width', width)
+        .attr('width', '100%')
         .attr('height', height)
         .attr('id', 'graphSvg');
     }
@@ -548,7 +556,7 @@ const ForceGraph = ({
         d3.forceCollide().radius((n) => calculateCollisionRadius(n as INode)),
       )
       //centering 作用力可以使得节点布局开之后围绕某个中心
-      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('center', d3.forceCenter(graphWidth / 2, height / 2))
       // positioning force along x-axis for disjoint graph
       .force('x', d3.forceX())
       // positioning force along y-axis for disjoint graph
@@ -690,7 +698,6 @@ const ForceGraph = ({
         ref={graphContainerRef}
         style={{
           position: 'relative',
-          width: width,
           height: height,
         }}
       >

@@ -24,8 +24,6 @@ export interface IForceGraphHandler {
 }
 
 export interface IForceGraphProps extends IGraphData {
-  /** svg 的宽度 */
-  width?: number;
   /** svg 的高度 */
   height?: number;
   /** link 所表示的字段含义 */
