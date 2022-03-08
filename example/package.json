@@ -11,12 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@anonymity94/d3-force-graph": "^0.0.7",
+    "@anonymity94/d3-force-graph": "^0.0.11",
     "@faker-js/faker": "^6.0.0-alpha.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
+    "@babel/core": "^7.0.0-0",
     "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "autoprefixer": "^10.4.2",
     "postcss-modules": "^4.3.1"
   },
   "browserslist": [
@@ -26,10 +28,9 @@
   ],
   "babel": {
     "presets": [
-      "@babel/preset-react"
+      "@babel/preset-env",
+      "@babel/preset-react",
+      "@babel/preset-typescript"
     ]
-  },
-  "postcss": {
-    "modules": true
   }
 }

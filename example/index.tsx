@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 // import ForceGraph from '@anonymity94/d3-force-graph';
 import ForceGraph from '../src';
-import '@anonymity94/d3-force-graph/dist/style/index.css';
 import { ITheme } from '../src/typings';
 import { defaultDarkTheme, defaultLightTheme } from '../src/utils/theme';
 import graphData from './data100.json';
@@ -77,7 +76,6 @@ graphData.forEach((row) => {
 
 const Demo = () => {
   const [theme, setTheme] = useState<ITheme>(defaultLightTheme);
-  const [width, setWidth] = useState<number>(500);
   const [height, setHeight] = useState<number>(500);
 
   return (
@@ -95,20 +93,16 @@ const Demo = () => {
       <button
         type="button"
         onClick={() => {
-          setWidth(
-            faker.datatype.number({ min: 500, max: 1000, precision: 10 }),
-          );
           setHeight(
             faker.datatype.number({ min: 500, max: 1000, precision: 10 }),
           );
         }}
       >
-        调整宽高
+        调整高度
       </button>
       <ForceGraph
         theme={theme}
         weightField="totalBytes"
-        width={width}
         height={height}
         nodes={nodes.map((n) => ({ ...n, ...(nodeSummary[n.id] || {}) }))}
         edges={links}
