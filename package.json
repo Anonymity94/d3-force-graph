@@ -1,6 +1,6 @@
 {
   "name": "@anonymity94/d3-force-graph",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
