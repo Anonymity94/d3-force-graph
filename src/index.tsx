@@ -181,8 +181,6 @@ const ForceGraph = ({
   edgeActions = [],
   onEdgeClick,
 }: IForceGraphProps) => {
-  const [nodeList] = useState<INode[]>([...nodes]);
-  const [edgeList] = useState<IEdge[]>([...edges]);
   const [graphWidth, setGraphWidth] = useState(500);
 
   // 选中的节点
@@ -200,8 +198,8 @@ const ForceGraph = ({
   }, []);
 
   useEffect(() => {
-    drawGraph(nodeList, edgeList);
-  }, [JSON.stringify(nodeList), JSON.stringify(edgeList)]);
+    drawGraph(nodes, edges);
+  }, [JSON.stringify(nodes), JSON.stringify(edges)]);
 
   useEffect(() => {
     return () => {
@@ -259,7 +257,7 @@ const ForceGraph = ({
     let nodeMax = 1;
     let nodeMin = 1;
 
-    for (const n of nodeList) {
+    for (const n of nodes) {
       if (n[weightField] !== undefined) {
         if (n[weightField] > nodeMax) {
           nodeMax = n[weightField];
@@ -273,7 +271,7 @@ const ForceGraph = ({
     let linkMax = 1;
     let linkMin = 1;
 
-    for (const l of edgeList) {
+    for (const l of edges) {
       if (l[weightField] !== undefined) {
         if (l[weightField] > linkMax) {
           linkMax = l[weightField];
@@ -301,7 +299,7 @@ const ForceGraph = ({
       linkScaleFactor,
       nodeScaleFactor,
     };
-  }, [weightField, JSON.stringify(nodeList), JSON.stringify(edgeList)]);
+  }, [weightField, JSON.stringify(nodes), JSON.stringify(edges)]);
 
   /**
    * 计算边的宽度
