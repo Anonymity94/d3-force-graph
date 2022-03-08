@@ -1,5 +1,3 @@
-name: GitHub Actions For NPM Publish
-
 on:
   push:
     tags:
