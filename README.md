@@ -4,11 +4,11 @@
 
 To use it on the web:
 
-```
+```bash
 yarn add @anonymity94/d3-force-graph
 ```
 
-```
+```bash
 npm install @anonymity94/d3-force-graph
 ```
 
@@ -40,12 +40,12 @@ const Demo = () => {
 ## Dev
 
 ```bash
-yarn
+yarn global add parcel-bundler 
 
 # demo dev
-yarn run demo:dev
+cd example && yarn run dev
 # 访问 http://localhost:1234
 
 # 构建 demo
-yarn run demo:prod
+cd example && yarn run prod
 ```
