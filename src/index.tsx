@@ -1,3 +1,4 @@
+import { useClickAway } from 'ahooks';
 import * as d3 from 'd3';
 import { ZoomTransform } from 'd3';
 import React, {
@@ -189,7 +190,6 @@ const ForceGraph = ({
   const [selectedEdge, setSelectedEdge] = useState<IEdge>();
 
   const actionRef = useRef<IAnyWhereContainerRefReturn>(null);
-  // const graphContainerRef = useRef<HTMLDivElement>(null);
 
   const graphContainerRef = useCallback((node) => {
     if (node !== null) {
@@ -233,7 +233,7 @@ const ForceGraph = ({
         d3Node = undefined;
         d3Edge = undefined;
         d3NodeLabel = undefined;
-        // zoomTransform = d3.zoomIdentity;
+        zoomTransform = d3.zoomIdentity;
 
         draggingNode = undefined;
       });
@@ -252,6 +252,10 @@ const ForceGraph = ({
     svg?.attr('height', height);
     simulation?.force('center', d3.forceCenter(graphWidth / 2, height / 2));
   }, [graphWidth, height]);
+
+  useClickAway(() => {
+    actionRef?.current?.updateVisible(false);
+  }, []);
 
   const minMaxForScale = useMemo(() => {
     let nodeMax = 1;
@@ -748,6 +752,7 @@ const ForceGraph = ({
   );
 };
 
+export * from './typings';
 export { IForceGraphProps };
 export { defaultLightTheme, defaultDarkTheme };
 export default ForceGraph;

@@ -35,7 +35,7 @@ const GraphControl = ({ onClick }: IGraphControlProps) => {
     {
       key: 'unlock',
       icon: unlock,
-      description: '解锁锁定布局',
+      description: '解锁布局',
     },
     {
       key: 'save',
