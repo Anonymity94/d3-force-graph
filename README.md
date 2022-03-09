@@ -40,12 +40,14 @@ const Demo = () => {
 ## Dev
 
 ```bash
-yarn global add parcel-bundler 
+cd example
+
+# install
+yarn
 
 # demo dev
-cd example && yarn run dev
-# 访问 http://localhost:1234
+yarn run start
 
-# 构建 demo
-cd example && yarn run prod
+# demo build
+cd example && yarn run build
 ```
