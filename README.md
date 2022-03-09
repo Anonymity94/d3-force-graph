@@ -49,5 +49,13 @@ yarn
 yarn run start
 
 # demo build
-cd example && yarn run build
+yarn run build
+```
+
+
+## Release
+
+```bash
+git tag va.b.c
+git push origin --tags 
 ```
