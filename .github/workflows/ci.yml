@@ -11,7 +11,7 @@ jobs:
       uses: actions/checkout@master
 
     - run: yarn install
-    - run: cd example && yarn global add parcel-bundler && yarn && yarn run build
+    - run: cd example && yarn && yarn run build
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v2
